@@ -96,13 +96,18 @@ Token tokenize(const char **input) {
 }
 
 
+void raiseError(char message[], int lineIndex) {
+    printf("Error line %d: %s\n",++lineIndex, message);
+    exit(1);
+}
+
 
 bool parse(Token command[], int index) {
     if(command[0].value[0] == '\0') {
         return true;
     }
     if (command[0].type != TOKEN_INSTRUCTION) {
-        printf("Error line %d: first token must be an instruction\n", index);
+        raiseError("first token must be an instruction", index);
         return false;
     }
     if (
@@ -111,11 +116,11 @@ bool parse(Token command[], int index) {
         & command[1].type != TOKEN_FLOAT
         & command[1].type != TOKEN_STRING
     ) {
-        printf("Error line %d: second token must be a register or a value\n", index);
+        raiseError("second token must be a register or a value", index);
         return false;
     }
     if (command[2].type == TOKEN_END_INSTRUCTION) {
-        printf("Error line %d: third token is missing\n", index);
+        raiseError("third token is missing", index);
         return false;
     }
     if (
@@ -124,7 +129,7 @@ bool parse(Token command[], int index) {
         && command[2].type != TOKEN_STRING
         && command[2].type != TOKEN_REGISTER
     ) {
-        printf("Error line %d: third token must be register or a value\n", index);
+        raiseError("third token must be register or a value", index);
         return false;
     }
 
@@ -161,6 +166,8 @@ int get_register_index(char registerName[]) {
         return 6;
     } else if (strcmp(registerName, "rmp") == 0) {
         return 7;
+    } else {
+        raiseError("unknown register",registers[6].val.ival);
     }
 }
 
@@ -168,7 +175,20 @@ void execute(Token command[]) {
 
 
     if (strcmp(command[0].value, "init") == 0) {
-        if(command[2].type == TOKEN_STRING) {
+        if (command[2].type == TOKEN_REGISTER) {
+            registers[get_register_index(command[1].value)].type = registers[get_register_index(command[2].value)].type;
+            switch(registers[get_register_index(command[1].value)].type) {
+                case is_int:
+                    registers[get_register_index(command[1].value)].val.ival = registers[get_register_index(command[2].value)].val.ival;
+                    break;
+                case is_float:
+                    registers[get_register_index(command[1].value)].val.fval = registers[get_register_index(command[2].value)].val.fval;
+                    break;
+                case is_str:
+                    strcpy(registers[get_register_index(command[1].value)].val.sval, registers[get_register_index(command[2].value)].val.sval);
+                    break;
+            }
+        } else if(command[2].type == TOKEN_STRING) {
             registers[get_register_index(command[1].value)].type = is_str;
             strcpy(registers[get_register_index(command[1].value)].val.sval, command[2].value);
         } else if(command[2].type == TOKEN_INT) {
@@ -180,6 +200,27 @@ void execute(Token command[]) {
         }
     }
 
+    if (strcmp(command[0].value, "add") == 0) {
+        if (command[2].type == TOKEN_REGISTER) {
+            switch(registers[get_register_index(command[1].value)].type) {
+                case is_int:
+                    registers[get_register_index(command[1].value)].val.ival += registers[get_register_index(command[2].value)].val.ival;
+                    break;
+                case is_float:
+                    registers[get_register_index(command[1].value)].val.fval += registers[get_register_index(command[2].value)].val.fval;
+                    break;
+                case is_str:
+                    strcat(registers[get_register_index(command[1].value)].val.sval, registers[get_register_index(command[2].value)].val.sval);
+                    break;
+            }
+        } else if(command[2].type == TOKEN_STRING) {
+            strcat(registers[get_register_index(command[1].value)].val.sval, command[2].value);
+        } else if(command[2].type == TOKEN_INT) {
+            registers[get_register_index(command[1].value)].val.ival += atoi(command[2].value);
+        } else if(command[2].type == TOKEN_FLOAT) {
+            registers[get_register_index(command[1].value)].val.fval += atof(command[2].value);
+        }
+    }
 
     if (strcmp(command[0].value, "print") == 0) {
         if(command[1].type == TOKEN_REGISTER) {

@@ -1,2 +1,5 @@
-init rbx 4.3
-print rbx
+init rax "Hello "
+init rbx "World!"
+add rax rbx
+print rax
+
