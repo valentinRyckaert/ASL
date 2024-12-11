@@ -1,2 +1,2 @@
-init rax 'Hello World!'
-print rax
+init rbx 4.3
+print rbx

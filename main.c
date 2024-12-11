@@ -65,12 +65,12 @@ Token tokenize(const char **input) {
     // Numbers (digits)
     if (isdigit(**input)) {
         int length = 0;
-        while (isdigit(**input) && length < 1024 - 1) {
+        while ((isdigit(**input) || **input == '.') && length < 1024 - 1) {
             token.value[length++] = **input;
             (*input)++;
         }
         token.value[length] = '\0';
-        token.type = TOKEN_INT;
+        token.type = strstr(token.value, ".") != NULL ? TOKEN_FLOAT : TOKEN_INT;
         return token;
     }
 
@@ -131,25 +131,6 @@ bool parse(Token command[], int index) {
     return true;
 }
 
-/*
-void print_token(Token token){
-    switch(token.type){
-        case TOKEN_INSTRUCTION:
-            printf("Instruction : %s\n", token.value);
-            break;
-        case TOKEN_INT:
-            printf("int : %s\n", token.value);
-            break;
-        case TOKEN_FLOAT:
-            printf("float : %s\n", token.value);
-            break;
-        case TOKEN_REGISTER:
-            printf("Register : %s\n", token.value);
-            break;
-    }
-}
-*/
-
 void set_registers() {
     for (int k = 0; k < 6; k++) {
         registers[k].name[0] = 'r';
@@ -184,13 +165,23 @@ int get_register_index(char registerName[]) {
 }
 
 void execute(Token command[]) {
+
+
     if (strcmp(command[0].value, "init") == 0) {
         if(command[2].type == TOKEN_STRING) {
             registers[get_register_index(command[1].value)].type = is_str;
             strcpy(registers[get_register_index(command[1].value)].val.sval, command[2].value);
+        } else if(command[2].type == TOKEN_INT) {
+            registers[get_register_index(command[1].value)].type = is_int;
+            registers[get_register_index(command[1].value)].val.ival = atoi(command[2].value);
+        } else if(command[2].type == TOKEN_FLOAT) {
+            registers[get_register_index(command[1].value)].type = is_float;
+            registers[get_register_index(command[1].value)].val.fval = atof(command[2].value);
         }
     }
-    if (strcmp(command[0].value, "print")) {
+
+
+    if (strcmp(command[0].value, "print") == 0) {
         if(command[1].type == TOKEN_REGISTER) {
             switch(registers[get_register_index(command[1].value)].type) {
                 case is_str:
@@ -203,6 +194,12 @@ void execute(Token command[]) {
                     printf("%f\n",registers[get_register_index(command[1].value)].val.fval);
                     break;
             }
+        } else if(command[1].type == TOKEN_INT) {
+            printf("%d\n",atoi(command[1].value));
+        } else if (command[1].type == TOKEN_FLOAT) {
+            printf("%f\n",atof(command[1].value));
+        } else if (command[1].type == TOKEN_STRING) {
+            printf("%s\n",command[1].value);
         }
     }
     
@@ -241,6 +238,9 @@ int main() {
     while (registers[6].val.ival < codeLen){
         if(!parse(code[registers[6].val.ival], registers[6].val.ival)){
             exit(1);
+        } else if (code[registers[6].val.ival][0].value == NULL) {
+            registers[6].val.ival++;
+            continue;
         }
         execute(code[registers[6].val.ival]);
         registers[6].val.ival++;
