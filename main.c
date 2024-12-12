@@ -20,17 +20,16 @@ typedef struct {
     char value[1024];
 } Token;
 
-struct {
-    char name[4];
+typedef struct {
     enum { is_int, is_float, is_str } type;
     union {
         int ival;
         float fval;
         char sval[64];
     } val;
-} registers[8];
+} MultiTypeVar;
 
-
+MultiTypeVar registers[8];
 int memory[1024];
 
 
@@ -102,13 +101,10 @@ void raiseError(char message[], int lineIndex) {
 }
 
 
-bool parse(Token command[], int index) {
-    if(command[0].value[0] == '\0') {
-        return true;
-    }
+void parse(Token command[], int index) {
+
     if (command[0].type != TOKEN_INSTRUCTION) {
         raiseError("first token must be an instruction", index);
-        return false;
     }
     if (
         command[1].type != TOKEN_REGISTER
@@ -117,11 +113,9 @@ bool parse(Token command[], int index) {
         & command[1].type != TOKEN_STRING
     ) {
         raiseError("second token must be a register or a value", index);
-        return false;
     }
     if (command[2].type == TOKEN_END_INSTRUCTION) {
         raiseError("third token is missing", index);
-        return false;
     }
     if (
         command[2].type != TOKEN_INT
@@ -130,21 +124,12 @@ bool parse(Token command[], int index) {
         && command[2].type != TOKEN_REGISTER
     ) {
         raiseError("third token must be register or a value", index);
-        return false;
     }
-
-    return true;
 }
 
-void set_registers() {
-    for (int k = 0; k < 6; k++) {
-        registers[k].name[0] = 'r';
-        registers[k].name[1] = (char)(k + 97);
-        registers[k].name[2] = 'x';
-        registers[k].name[3] = '\0';
-    }
-    strcpy(registers[6].name, "rip");
-    strcpy(registers[7].name, "rmp");
+void set_pointers() {
+    registers[6].type = is_int;
+    registers[6].val.ival = 0;
     registers[7].type = is_int;
     registers[7].val.ival = 0;
 }
@@ -171,58 +156,78 @@ int get_register_index(char registerName[]) {
     }
 }
 
+void set_register(Token command[], MultiTypeVar value, int operation) {
+    registers[get_register_index(command[1].value)].type =  value.type;
+    switch(registers[get_register_index(command[1].value)].type) {
+        case is_int:
+            if (operation == 0)
+                registers[get_register_index(command[1].value)].val.ival = value.val.ival;
+            else if (operation == 1)
+                registers[get_register_index(command[1].value)].val.ival += value.val.ival;
+            else if (operation == 2)
+                registers[get_register_index(command[1].value)].val.ival -= value.val.ival;
+            else if (operation == 3)
+                registers[get_register_index(command[1].value)].val.ival *= value.val.ival;
+            else if (operation == 4)
+                registers[get_register_index(command[1].value)].val.ival /= value.val.ival;
+            break;
+        case is_float:
+            if (operation == 0)
+                registers[get_register_index(command[1].value)].val.fval = value.val.fval;
+            else if (operation == 1)
+                registers[get_register_index(command[1].value)].val.fval += value.val.fval;
+            else if (operation == 2)
+                registers[get_register_index(command[1].value)].val.fval -= value.val.fval;
+            else if (operation == 3)
+                registers[get_register_index(command[1].value)].val.fval *= value.val.fval;
+            else if (operation == 4)
+                registers[get_register_index(command[1].value)].val.fval /= value.val.fval;
+            break;
+        case is_str:
+            if (operation == 0)
+                strcpy(registers[get_register_index(command[1].value)].val.sval,  value.val.sval);
+            else if (operation == 1)
+                strcat(registers[get_register_index(command[1].value)].val.sval,  value.val.sval);
+            else if (operation == 2)
+                raiseError("cannot do substraction on string", registers[6].val.ival);
+            else if (operation == 3)
+                raiseError("cannot do multiplication on string", registers[6].val.ival);
+            else if (operation == 4)
+                raiseError("cannot do division on string", registers[6].val.ival);
+            break;
+    }
+}
+
+void do_operation_on_register(Token command[], int operationType) {
+    MultiTypeVar n;
+    if (command[2].type == TOKEN_REGISTER) {
+        set_register(command, registers[get_register_index(command[2].value)], operationType);
+    } else if(command[2].type == TOKEN_STRING) {
+        n.type = is_str;
+        strcpy(n.val.sval, command[2].value);
+        set_register(command, n, operationType);
+    } else if(command[2].type == TOKEN_INT) {
+        n.type = is_int;
+        n.val.ival = atoi(command[2].value);
+        set_register(command, n, operationType);
+    } else if(command[2].type == TOKEN_FLOAT) {
+        n.type = is_float;
+        n.val.fval = atof(command[2].value);
+        set_register(command, n, operationType);
+    }
+}
+
 void execute(Token command[]) {
 
 
-    if (strcmp(command[0].value, "init") == 0) {
-        if (command[2].type == TOKEN_REGISTER) {
-            registers[get_register_index(command[1].value)].type = registers[get_register_index(command[2].value)].type;
-            switch(registers[get_register_index(command[1].value)].type) {
-                case is_int:
-                    registers[get_register_index(command[1].value)].val.ival = registers[get_register_index(command[2].value)].val.ival;
-                    break;
-                case is_float:
-                    registers[get_register_index(command[1].value)].val.fval = registers[get_register_index(command[2].value)].val.fval;
-                    break;
-                case is_str:
-                    strcpy(registers[get_register_index(command[1].value)].val.sval, registers[get_register_index(command[2].value)].val.sval);
-                    break;
-            }
-        } else if(command[2].type == TOKEN_STRING) {
-            registers[get_register_index(command[1].value)].type = is_str;
-            strcpy(registers[get_register_index(command[1].value)].val.sval, command[2].value);
-        } else if(command[2].type == TOKEN_INT) {
-            registers[get_register_index(command[1].value)].type = is_int;
-            registers[get_register_index(command[1].value)].val.ival = atoi(command[2].value);
-        } else if(command[2].type == TOKEN_FLOAT) {
-            registers[get_register_index(command[1].value)].type = is_float;
-            registers[get_register_index(command[1].value)].val.fval = atof(command[2].value);
-        }
-    }
+    if (strcmp(command[0].value, "init") == 0) { do_operation_on_register(command, 0); }
+    else if (strcmp(command[0].value, "add") == 0) { do_operation_on_register(command, 1); }
+    else if (strcmp(command[0].value, "sub") == 0) { do_operation_on_register(command, 2); }
+    else if (strcmp(command[0].value, "mul") == 0) { do_operation_on_register(command, 3); }
+    else if (strcmp(command[0].value, "div") == 0) { do_operation_on_register(command, 4); }
 
-    if (strcmp(command[0].value, "add") == 0) {
-        if (command[2].type == TOKEN_REGISTER) {
-            switch(registers[get_register_index(command[1].value)].type) {
-                case is_int:
-                    registers[get_register_index(command[1].value)].val.ival += registers[get_register_index(command[2].value)].val.ival;
-                    break;
-                case is_float:
-                    registers[get_register_index(command[1].value)].val.fval += registers[get_register_index(command[2].value)].val.fval;
-                    break;
-                case is_str:
-                    strcat(registers[get_register_index(command[1].value)].val.sval, registers[get_register_index(command[2].value)].val.sval);
-                    break;
-            }
-        } else if(command[2].type == TOKEN_STRING) {
-            strcat(registers[get_register_index(command[1].value)].val.sval, command[2].value);
-        } else if(command[2].type == TOKEN_INT) {
-            registers[get_register_index(command[1].value)].val.ival += atoi(command[2].value);
-        } else if(command[2].type == TOKEN_FLOAT) {
-            registers[get_register_index(command[1].value)].val.fval += atof(command[2].value);
-        }
-    }
 
-    if (strcmp(command[0].value, "print") == 0) {
+    else if (strcmp(command[0].value, "print") == 0) {
         if(command[1].type == TOKEN_REGISTER) {
             switch(registers[get_register_index(command[1].value)].type) {
                 case is_str:
@@ -243,6 +248,8 @@ void execute(Token command[]) {
             printf("%s\n",command[1].value);
         }
     }
+
+    else { raiseError("unknown instruction",registers[6].val.ival); }
     
 }
 
@@ -257,7 +264,8 @@ int main() {
     int programLength = 0;
     while (fgets(line, sizeof(line), file)) {
         line[strcspn(line, "\n")] = 0;
-        strcpy(lines[programLength++], line);
+        if (!(strcmp(line, "\n") == 0 || strlen(line) == 0))
+            strcpy(lines[programLength++], line);
     }
     fclose(file);
 
@@ -275,14 +283,9 @@ int main() {
     }
 
 
-    set_registers();
-    while (registers[6].val.ival < codeLen){
-        if(!parse(code[registers[6].val.ival], registers[6].val.ival)){
-            exit(1);
-        } else if (code[registers[6].val.ival][0].value == NULL) {
-            registers[6].val.ival++;
-            continue;
-        }
+    set_pointers();
+    while (registers[6].val.ival < codeLen) {
+        parse(code[registers[6].val.ival], registers[6].val.ival);
         execute(code[registers[6].val.ival]);
         registers[6].val.ival++;
     }

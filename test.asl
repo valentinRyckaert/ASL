@@ -1,5 +1,8 @@
-init rax "Hello "
-init rbx "World!"
-add rax rbx
+init rax 3
+init rbx 4
+sub rax rbx
 print rax
+
+
+
 
