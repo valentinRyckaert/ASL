@@ -156,38 +156,38 @@ int get_register_index(char registerName[]) {
     }
 }
 
-void set_register(Token command[], MultiTypeVar value, int operation) {
-    registers[get_register_index(command[1].value)].type =  value.type;
-    switch(registers[get_register_index(command[1].value)].type) {
+void set_register(int registerIndex, MultiTypeVar value, int operation) {
+    registers[registerIndex].type =  value.type;
+    switch(registers[registerIndex].type) {
         case is_int:
             if (operation == 0)
-                registers[get_register_index(command[1].value)].val.ival = value.val.ival;
+                registers[registerIndex].val.ival = value.val.ival;
             else if (operation == 1)
-                registers[get_register_index(command[1].value)].val.ival += value.val.ival;
+                registers[registerIndex].val.ival += value.val.ival;
             else if (operation == 2)
-                registers[get_register_index(command[1].value)].val.ival -= value.val.ival;
+                registers[registerIndex].val.ival -= value.val.ival;
             else if (operation == 3)
-                registers[get_register_index(command[1].value)].val.ival *= value.val.ival;
+                registers[registerIndex].val.ival *= value.val.ival;
             else if (operation == 4)
-                registers[get_register_index(command[1].value)].val.ival /= value.val.ival;
+                registers[registerIndex].val.ival /= value.val.ival;
             break;
         case is_float:
             if (operation == 0)
-                registers[get_register_index(command[1].value)].val.fval = value.val.fval;
+                registers[registerIndex].val.fval = value.val.fval;
             else if (operation == 1)
-                registers[get_register_index(command[1].value)].val.fval += value.val.fval;
+                registers[registerIndex].val.fval += value.val.fval;
             else if (operation == 2)
-                registers[get_register_index(command[1].value)].val.fval -= value.val.fval;
+                registers[registerIndex].val.fval -= value.val.fval;
             else if (operation == 3)
-                registers[get_register_index(command[1].value)].val.fval *= value.val.fval;
+                registers[registerIndex].val.fval *= value.val.fval;
             else if (operation == 4)
-                registers[get_register_index(command[1].value)].val.fval /= value.val.fval;
+                registers[registerIndex].val.fval /= value.val.fval;
             break;
         case is_str:
             if (operation == 0)
-                strcpy(registers[get_register_index(command[1].value)].val.sval,  value.val.sval);
+                strcpy(registers[registerIndex].val.sval,  value.val.sval);
             else if (operation == 1)
-                strcat(registers[get_register_index(command[1].value)].val.sval,  value.val.sval);
+                strcat(registers[registerIndex].val.sval,  value.val.sval);
             else if (operation == 2)
                 raiseError("cannot do substraction on string", registers[6].val.ival);
             else if (operation == 3)
@@ -198,34 +198,43 @@ void set_register(Token command[], MultiTypeVar value, int operation) {
     }
 }
 
-void do_operation_on_register(Token command[], int operationType) {
+void do_operation_on_register(int registerIndex, Token tokenValue, int operationType) {
     MultiTypeVar n;
-    if (command[2].type == TOKEN_REGISTER) {
-        set_register(command, registers[get_register_index(command[2].value)], operationType);
-    } else if(command[2].type == TOKEN_STRING) {
+    if (tokenValue.type == TOKEN_REGISTER) {
+        set_register(registerIndex, registers[get_register_index(tokenValue.value)], operationType);
+    } else if(tokenValue.type == TOKEN_STRING) {
         n.type = is_str;
-        strcpy(n.val.sval, command[2].value);
-        set_register(command, n, operationType);
-    } else if(command[2].type == TOKEN_INT) {
+        strcpy(n.val.sval, tokenValue.value);
+        set_register(registerIndex, n, operationType);
+    } else if(tokenValue.type == TOKEN_INT) {
         n.type = is_int;
-        n.val.ival = atoi(command[2].value);
-        set_register(command, n, operationType);
-    } else if(command[2].type == TOKEN_FLOAT) {
+        n.val.ival = atoi(tokenValue.value);
+        set_register(registerIndex, n, operationType);
+    } else if(tokenValue.type == TOKEN_FLOAT) {
         n.type = is_float;
-        n.val.fval = atof(command[2].value);
-        set_register(command, n, operationType);
+        n.val.fval = atof(tokenValue.value);
+        set_register(registerIndex, n, operationType);
     }
 }
 
 void execute(Token command[]) {
 
 
-    if (strcmp(command[0].value, "init") == 0) { do_operation_on_register(command, 0); }
-    else if (strcmp(command[0].value, "add") == 0) { do_operation_on_register(command, 1); }
-    else if (strcmp(command[0].value, "sub") == 0) { do_operation_on_register(command, 2); }
-    else if (strcmp(command[0].value, "mul") == 0) { do_operation_on_register(command, 3); }
-    else if (strcmp(command[0].value, "div") == 0) { do_operation_on_register(command, 4); }
-
+    if (strcmp(command[0].value, "init") == 0) {
+        do_operation_on_register(get_register_index(command[1].value), command[2], 0);
+    }
+    else if (strcmp(command[0].value, "add") == 0) {
+        do_operation_on_register(get_register_index(command[1].value), command[2], 1);
+    }
+    else if (strcmp(command[0].value, "sub") == 0) {
+        do_operation_on_register(get_register_index(command[1].value), command[2], 2);
+    }
+    else if (strcmp(command[0].value, "mul") == 0) {
+        do_operation_on_register(get_register_index(command[1].value), command[2], 3);
+    }
+    else if (strcmp(command[0].value, "div") == 0) {
+        do_operation_on_register(get_register_index(command[1].value), command[2], 4);
+    }
 
     else if (strcmp(command[0].value, "print") == 0) {
         if(command[1].type == TOKEN_REGISTER) {
