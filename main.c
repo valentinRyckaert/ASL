@@ -52,7 +52,7 @@ Token tokenize(const char **input) {
     // Instructions and Registers (letter followed by letters)
     if (isalpha(**input)) {
         int length = 0;
-        while (isalpha(**input) && length < 1024 - 1) {
+        while ((isalpha(**input) || **input == '?') && length < 1024 - 1) {
             token.value[length++] = **input;
             (*input)++;
         }
@@ -234,6 +234,19 @@ void execute(Token command[]) {
     }
     else if (strcmp(command[0].value, "div") == 0) {
         do_operation_on_register(get_register_index(command[1].value), command[2], 4);
+    }
+
+    else if (strcmp(command[0].value, "go?eq") == 0) {
+        if (registers[get_register_index(command[1].value)].val.ival == 0)
+            do_operation_on_register(6, command[2], 0);
+    }
+    else if (strcmp(command[0].value, "go?bi") == 0) {
+        if (registers[get_register_index(command[1].value)].val.ival > 0)
+            do_operation_on_register(6, command[2], 0);
+    }
+    else if (strcmp(command[0].value, "go?le") == 0) {
+        if (registers[get_register_index(command[1].value)].val.ival < 0)
+            do_operation_on_register(6, command[2], 0);
     }
 
     else if (strcmp(command[0].value, "print") == 0) {

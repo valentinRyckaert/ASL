@@ -1,8 +1,7 @@
-init rax 3
+init rax 4
 init rbx 4
-go?eq rax 7
-sub rax rbx
-print rax
+go?le rax 6
+print rbx
 
 
 
