@@ -96,7 +96,7 @@ Token tokenize(const char **input) {
 
 
 void raiseError(char message[], int lineIndex) {
-    printf("Error line %d: %s\n",++lineIndex, message);
+    printf("Error line %d: %s\n", lineIndex, message);
     exit(1);
 }
 
@@ -295,8 +295,7 @@ int main() {
     int programLength = 0;
     while (fgets(line, sizeof(line), file)) {
         line[strcspn(line, "\n")] = 0;
-        if (!(strcmp(line, "\n") == 0 || strlen(line) == 0))
-            strcpy(lines[programLength++], line);
+        strcpy(lines[programLength++], line);
     }
     fclose(file);
 
@@ -316,8 +315,13 @@ int main() {
 
     set_pointers();
     while (registers[6].val.ival < codeLen) {
-        parse(code[registers[6].val.ival], registers[6].val.ival);
-        execute(code[registers[6].val.ival]);
+        if (!(
+            strcmp(code[registers[6].val.ival][0].value, "\n") == 0
+            || strlen(code[registers[6].val.ival][0].value) == 0
+        )) {
+            parse(code[registers[6].val.ival], registers[6].val.ival);
+            execute(code[registers[6].val.ival]);
+        }
         registers[6].val.ival++;
     }
 
