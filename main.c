@@ -217,6 +217,24 @@ void do_operation_on_register(int registerIndex, Token tokenValue, int operation
     }
 }
 
+void do_check_go(Token checkValue, Token destIfTrue, int checkType) {
+    int verif, valueChecked;
+    if (checkValue.type == TOKEN_REGISTER)
+        valueChecked = registers[get_register_index(checkValue.value)].val.ival;
+    else if (checkValue.type == TOKEN_INT)
+        valueChecked = atoi(checkValue.value);
+    switch(checkType) {
+        case 0 :
+            verif = valueChecked == 0; break;
+        case 1 :
+            verif = valueChecked > 0; break;
+        case 2 :
+            verif = valueChecked < 0; break;
+    }
+    if (verif)
+        do_operation_on_register(6, destIfTrue, 0);
+}
+
 void execute(Token command[]) {
 
 
@@ -236,18 +254,9 @@ void execute(Token command[]) {
         do_operation_on_register(get_register_index(command[1].value), command[2], 4);
     }
 
-    else if (strcmp(command[0].value, "go?eq") == 0) {
-        if (registers[get_register_index(command[1].value)].val.ival == 0)
-            do_operation_on_register(6, command[2], 0);
-    }
-    else if (strcmp(command[0].value, "go?bi") == 0) {
-        if (registers[get_register_index(command[1].value)].val.ival > 0)
-            do_operation_on_register(6, command[2], 0);
-    }
-    else if (strcmp(command[0].value, "go?le") == 0) {
-        if (registers[get_register_index(command[1].value)].val.ival < 0)
-            do_operation_on_register(6, command[2], 0);
-    }
+    else if (strcmp(command[0].value, "go?eq") == 0) { do_check_go(command[1], command[2], 0); }
+    else if (strcmp(command[0].value, "go?bi") == 0) { do_check_go(command[1], command[2], 1); }
+    else if (strcmp(command[0].value, "go?le") == 0) { do_check_go(command[1], command[2], 2); }
 
     else if (strcmp(command[0].value, "print") == 0) {
         if(command[1].type == TOKEN_REGISTER) {
