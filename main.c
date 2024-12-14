@@ -280,6 +280,15 @@ void execute(Token command[]) {
         }
     }
 
+    else if (strcmp(command[0].value, "input") == 0) {
+        Token input;
+        input.type = TOKEN_INT;
+        scanf("%s", &input.value[0]);
+        do_operation_on_register(get_register_index(command[1].value), input, 0);
+    }
+
+    else if (strcmp(command[0].value, "exit") == 0) { exit(1); }
+
     else { raiseError("unknown instruction",registers[6].val.ival); }
     
 }
