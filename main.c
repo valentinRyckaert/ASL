@@ -30,7 +30,7 @@ typedef struct {
 } MultiTypeVar;
 
 MultiTypeVar registers[8];
-int memory[1024];
+MultiTypeVar memory[1024];
 
 
 Token tokenize(const char **input) {
@@ -278,6 +278,34 @@ void execute(Token command[]) {
         } else if (command[1].type == TOKEN_STRING) {
             printf("%s\n",command[1].value);
         }
+    }
+
+    else if (strcmp(command[0].value, "store") == 0) {
+        if (command[1].type == TOKEN_REGISTER) {
+            memory[registers[7].val.ival].type = registers[get_register_index(command[1].value)].type;
+            switch(registers[get_register_index(command[1].value)].type) {
+                case is_int : 
+                    memory[registers[7].val.ival].val.ival = registers[get_register_index(command[1].value)].val.ival; break;
+                case is_float :
+                    memory[registers[7].val.ival].val.fval = registers[get_register_index(command[1].value)].val.fval; break;
+                case is_str :
+                    strcpy(memory[registers[7].val.ival].val.sval, registers[get_register_index(command[1].value)].val.sval); break;
+            }
+        } else if (command[1].type == TOKEN_INT) {
+            memory[registers[7].val.ival].val.ival = atoi(command[1].value);
+        } else if (command[1].type == TOKEN_FLOAT) {
+            memory[registers[7].val.ival].val.fval = atof(command[1].value);
+        } else if (command[1].type == TOKEN_STRING) {
+            strcpy(memory[registers[7].val.ival].val.sval, command[1].value);
+        }
+
+    }
+    else if (strcmp(command[0].value, "load") == 0) {
+        set_register(
+            get_register_index(command[1].value),
+            memory[registers[7].val.ival],
+            0
+        );
     }
 
     else if (strcmp(command[0].value, "input") == 0) {
