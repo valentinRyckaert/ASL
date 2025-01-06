@@ -67,7 +67,7 @@ print "hello" # not executed
 print 'end'
 ```
 [!IMPORTANT]
-the rip register begins to 0. when you want to go to the 4th instruction, use number 5 instead.
+the rip register begins to 0. when you want to go to the xth instruction, use number x-2 instead.
 
 
 ## Memory
