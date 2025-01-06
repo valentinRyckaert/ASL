@@ -62,12 +62,12 @@ Token tokenize(const char **input) {
     }
 
     // Numbers (digits)
-    if (isdigit(**input)) {
+    if (isdigit(**input) || **input == '-') {
         int length = 0;
-        while ((isdigit(**input) || **input == '.') && length < 1024 - 1) {
+        do {
             token.value[length++] = **input;
             (*input)++;
-        }
+        } while ((isdigit(**input) || **input == '.') && length < 1024 - 1);
         token.value[length] = '\0';
         token.type = strstr(token.value, ".") != NULL ? TOKEN_FLOAT : TOKEN_INT;
         return token;
