@@ -62,12 +62,10 @@ _oneline comments_
 _go to a specific line if the value equals, is bigger or less than 0_
 ```asl
 init rax 3
-go?bi rax 3
+go?bi rax 4
 print "hello" # not executed
 print 'end'
 ```
-[!IMPORTANT]
-the rip register begins to 0. when you want to go to the xth instruction, use number x-2 instead.
 
 
 ## Memory

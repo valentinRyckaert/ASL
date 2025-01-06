@@ -129,7 +129,7 @@ void parse(Token command[], int index) {
 
 void set_pointers() {
     registers[6].type = is_int;
-    registers[6].val.ival = 0;
+    registers[6].val.ival = 1;
     registers[7].type = is_int;
     registers[7].val.ival = 0;
 }
@@ -232,6 +232,10 @@ void do_check_go(Token checkValue, Token destIfTrue, int checkType) {
             verif = valueChecked < 0; break;
     }
     if (verif)
+        if(destIfTrue.type == TOKEN_REGISTER)
+            sprintf(destIfTrue.value, "%d", registers[get_register_index(destIfTrue.value)].val.ival-1);
+        else
+            sprintf(destIfTrue.value, "%d", atoi(destIfTrue.value)-1);
         do_operation_on_register(6, destIfTrue, 0);
 }
 
@@ -351,13 +355,13 @@ int main() {
 
 
     set_pointers();
-    while (registers[6].val.ival < codeLen) {
+    while (registers[6].val.ival <= codeLen) {
         if (!(
-            strcmp(code[registers[6].val.ival][0].value, "\n") == 0
-            || strlen(code[registers[6].val.ival][0].value) == 0
+            strcmp(code[registers[6].val.ival-1][0].value, "\n") == 0
+            || strlen(code[registers[6].val.ival-1][0].value) == 0
         )) {
-            parse(code[registers[6].val.ival], registers[6].val.ival);
-            execute(code[registers[6].val.ival]);
+            parse(code[registers[6].val.ival-1], registers[6].val.ival);
+            execute(code[registers[6].val.ival-1]);
         }
         registers[6].val.ival++;
     }
