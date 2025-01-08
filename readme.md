@@ -1,3 +1,13 @@
+# ASL
+
+## Launch a file
+```shell
+gcc main.c -o main # compile
+./main # execute
+```
+
+# Docs
+
 ## Registers
 There are 8 registers:
 - rax, rbx, rcx, rdx, rex, rfx (for storing values)

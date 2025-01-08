@@ -231,12 +231,15 @@ void do_check_go(Token checkValue, Token destIfTrue, int checkType) {
         case 2 :
             verif = valueChecked < 0; break;
     }
-    if (verif)
+    if (verif) {
+        MultiTypeVar n;
+        n.type = destIfTrue.type;
         if(destIfTrue.type == TOKEN_REGISTER)
-            sprintf(destIfTrue.value, "%d", registers[get_register_index(destIfTrue.value)].val.ival-1);
+            n.val.ival = registers[get_register_index(destIfTrue.value)].val.ival-1;
         else
-            sprintf(destIfTrue.value, "%d", atoi(destIfTrue.value)-1);
-        do_operation_on_register(6, destIfTrue, 0);
+            n.val.ival = atoi(destIfTrue.value)-1;
+        set_register(6,n,0);
+    }
 }
 
 void execute(Token command[]) {
