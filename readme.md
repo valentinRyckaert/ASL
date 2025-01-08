@@ -42,7 +42,7 @@ _get value from user input and store the value in a register_
 ```asl
 input rax
 ```
-the input accept integers. If you want to input a string, you need to add quotes (single or double) around the string.
+the input accepts integers. If you want to input a string, you need to add quotes (single or double) around the input.
 
 #### add, sub, mul and div
 _basic operations on registers_
@@ -79,6 +79,14 @@ print "hello" # not executed
 print 'end'
 ```
 
+## To-String keyword
+
+#### tostr
+_converts a register which contains an integer or a float to a string_
+```asl
+init rex 3
+tostr rex # rex now contains a string
+```
 
 ## Memory
 

@@ -233,7 +233,7 @@ void do_check_go(Token checkValue, Token destIfTrue, int checkType) {
     }
     if (verif) {
         MultiTypeVar n;
-        n.type = destIfTrue.type;
+        n.type = is_int;
         if(destIfTrue.type == TOKEN_REGISTER)
             n.val.ival = registers[get_register_index(destIfTrue.value)].val.ival-1;
         else
@@ -313,6 +313,18 @@ void execute(Token command[]) {
             memory[registers[7].val.ival],
             0
         );
+    }
+
+    else if(strcmp(command[0].value, "tostr") == 0) {
+        if (registers[get_register_index(command[1].value)].type != TOKEN_STRING) {
+            MultiTypeVar n;
+            n.type = is_str;
+            if (registers[get_register_index(command[1].value)].type == is_int)
+                sprintf(n.val.sval,"%d",registers[get_register_index(command[1].value)].val.ival);
+            else
+                sprintf(n.val.sval,"%f",registers[get_register_index(command[1].value)].val.fval);
+            set_register(get_register_index(command[1].value),n,0);
+        }
     }
 
     else if (strcmp(command[0].value, "input") == 0) {
