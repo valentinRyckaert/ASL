@@ -315,7 +315,7 @@ void execute(Token command[]) {
         );
     }
 
-    else if(strcmp(command[0].value, "tostr") == 0) {
+    else if(strcmp(command[0].value, "tos") == 0) {
         if (registers[get_register_index(command[1].value)].type != TOKEN_STRING) {
             MultiTypeVar n;
             n.type = is_str;
@@ -323,6 +323,30 @@ void execute(Token command[]) {
                 sprintf(n.val.sval,"%d",registers[get_register_index(command[1].value)].val.ival);
             else
                 sprintf(n.val.sval,"%f",registers[get_register_index(command[1].value)].val.fval);
+            set_register(get_register_index(command[1].value),n,0);
+        }
+    }
+
+    else if(strcmp(command[0].value, "toi") == 0) {
+        if (registers[get_register_index(command[1].value)].type != TOKEN_INT) {
+            MultiTypeVar n;
+            n.type = is_int;
+            if (registers[get_register_index(command[1].value)].type == is_str)
+                n.val.ival = atoi(registers[get_register_index(command[1].value)].val.sval);
+            else
+                n.val.ival = (int) registers[get_register_index(command[1].value)].val.fval;
+            set_register(get_register_index(command[1].value),n,0);
+        }
+    }
+
+    else if(strcmp(command[0].value, "tof") == 0) {
+        if (registers[get_register_index(command[1].value)].type != TOKEN_FLOAT) {
+            MultiTypeVar n;
+            n.type = is_float;
+            if (registers[get_register_index(command[1].value)].type == is_str)
+                n.val.fval = atof(registers[get_register_index(command[1].value)].val.sval);
+            else
+                n.val.fval = (float) registers[get_register_index(command[1].value)].val.ival;
             set_register(get_register_index(command[1].value),n,0);
         }
     }

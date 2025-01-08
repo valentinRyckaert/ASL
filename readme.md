@@ -80,11 +80,25 @@ print 'end'
 
 ## Convertion
 
-#### tostr
+#### tos
 _converts a register which contains an integer or a float to a string_
 ```asl
 init rex 3
-tostr rex # rex now contains a string
+tos rex # rex now contains a string
+```
+
+#### toi
+_converts a register which contains a string or a float to a integer_
+```asl
+init rex '3'
+toi rex # rex now contains an integer
+```
+
+#### tof
+_converts a register which contains an integer or a string to a float_
+```asl
+init rex 3
+tof rex # rex now contains a float
 ```
 
 ## Memory
