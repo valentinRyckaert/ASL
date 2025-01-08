@@ -1,4 +1,5 @@
 # ASL
+_the language still have a lot of bugs and limited functionalities, so do not expect something incridible._
 
 ## Launch a file
 ```shell
@@ -37,7 +38,7 @@ print 4
 ```
 
 #### input
-_get value from user input and store the value in a register_
+_get value from user input and store the integer in a register_
 ```asl
 input rax
 ```
