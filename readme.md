@@ -1,5 +1,5 @@
 # ASL (Assembly Style Language)
-_the language still have a lot of bugs and limited functionalities, so do not expect something incridible._
+_the language still have a lot of bugs and limited functionalities, so do not expect something incredible._
 
 ## Launch a file
 ```shell
