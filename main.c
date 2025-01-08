@@ -317,8 +317,15 @@ void execute(Token command[]) {
 
     else if (strcmp(command[0].value, "input") == 0) {
         Token input;
-        input.type = TOKEN_INT;
-        scanf("%s", &input.value[0]);
+        scanf("%s", &input.value);
+        if (
+            (strncmp("\"", input.value, 1) == 0 || strncmp("\'", input.value, 1) == 0) &&
+            (input.value[strlen(input.value) - 1] == '"' || input.value[strlen(input.value) - 1] == '\'')
+        ) {
+            input.type = TOKEN_STRING;
+        } else {
+            input.type = TOKEN_INT;
+        }
         do_operation_on_register(get_register_index(command[1].value), input, 0);
     }
 

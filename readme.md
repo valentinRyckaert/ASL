@@ -38,10 +38,11 @@ print 4
 ```
 
 #### input
-_get value from user input and store the integer in a register_
+_get value from user input and store the value in a register_
 ```asl
 input rax
 ```
+the input accept integers. If you want to input a string, you need to add quotes (single or double) around the string.
 
 #### add, sub, mul and div
 _basic operations on registers_
