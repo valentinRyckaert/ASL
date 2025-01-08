@@ -1,4 +1,4 @@
-# ASL
+# ASL (Asembly Style Language)
 
 ## Launch a file
 ```shell
