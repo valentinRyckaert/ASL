@@ -1,4 +1,4 @@
-# ASL (Assembly Style Language)
+# ALL (Assembly-Like Language)
 _the language still have a lot of bugs and limited functionalities, so do not expect something incredible._
 
 ## Launch a file
@@ -16,7 +16,7 @@ There are 8 registers:
 - rmp (memory pointer : which memory place is pointed)
 
 ## Types
-ASL is dynamicly typed. Available types are:
+ALL is dynamicly typed. Available types are:
 - integer
 - float
 - string
@@ -27,25 +27,25 @@ Others types (arrays, dictionaries...) can be done using the [memory](#memory).
 
 #### init
 _set a register to a specific value_
-```asl
+```all
 init rax 4
 ```
 
 #### print
 _show value of a register_
-```asl
+```all
 print 4
 ```
 
 #### input
 _get string from user input and store the value in a register_
-```asl
+```all
 input rax
 ```
 
 #### add, sub, mul and div
 _basic operations on registers_
-```asl
+```all
 add rax 4
 sub rax 2
 mul rax 3
@@ -55,7 +55,7 @@ print rax # result : 3
 
 #### exit
 _close the program_
-```asl
+```all
 print 'end'
 exit
 print "Hello World!" # not printed
@@ -63,7 +63,7 @@ print "Hello World!" # not printed
 
 #### comments
 _oneline comments_
-```asl
+```all
 # hello
 ```
 
@@ -71,7 +71,7 @@ _oneline comments_
 
 #### go?eq, go?bi, go?le
 _go to a specific line if the value equals, is bigger or less than 0_
-```asl
+```all
 init rax 3
 go?bi rax 4
 print "hello" # not executed
@@ -82,21 +82,21 @@ print 'end'
 
 #### tos
 _converts a register which contains an integer or a float to a string_
-```asl
+```all
 init rex 3
 tos rex # rex now contains a string
 ```
 
 #### toi
 _converts a register which contains a string or a float to a integer_
-```asl
+```all
 init rex '3'
 toi rex # rex now contains an integer
 ```
 
 #### tof
 _converts a register which contains an integer or a string to a float_
-```asl
+```all
 init rex 3
 tof rex # rex now contains a float
 ```
@@ -105,7 +105,7 @@ tof rex # rex now contains a float
 
 #### store
 _store a value where rmp is pointing_
-```asl
+```all
 store 5 # value 5 is stored at case number 0
 add rmp 2 # case number 2
 init rax rmp
@@ -114,7 +114,7 @@ store rax # value 2 is stored
 
 #### load 
 _load in a register the value where rmp is pointing_
-```asl
+```all
 store 3
 load rax
 print rax # result : 3
